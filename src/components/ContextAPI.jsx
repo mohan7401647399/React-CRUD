@@ -34,6 +34,7 @@ export default function ContextAPI({ children }) {
   const [editUser, setEditUser] = useState(null);
   const navigate = useNavigate();
 
+  //  fetch all users
   const fetchUsers = useCallback(async () => {
     try {
       const response = await axios.get(API_URL);
@@ -49,10 +50,16 @@ export default function ContextAPI({ children }) {
     fetchUsers();
   }, [fetchUsers]);
 
+  //  add a new user
   const handleAddUser = useCallback(async () => {
-    if (!formData.name || !formData.email) {
+    if (!formData.name && !formData.email) {
       setError("Both fields are required");
       return;
+    }
+    if (!formData.email) {
+      setError("Email fields are requied");
+    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+      setError("Email is invalid");
     }
     try {
       const response = await axios.post(API_URL, formData);
@@ -65,6 +72,7 @@ export default function ContextAPI({ children }) {
     }
   }, [API_URL, formData, initialState]);
 
+  //  edit existing user
   const handleEditUser = useCallback((user) => {
     setEditUser(user);
     setFormData({
@@ -75,28 +83,36 @@ export default function ContextAPI({ children }) {
       company: user.company,
     });
   }, []);
-  const handleSaveEdit = useCallback(async () => {
-    if (!formData.name || !formData.email) {
-      setError("Both fields are required");
-      return;
-    }
-    try {
-      const response = await axios.put(`${API_URL}/${editUser.id}`, formData);
-      setUsers((prev) =>
-        prev.map((user) =>
-          user.id === editUser.id ? { ...user, ...response.data } : user
-        )
-      );
-      setEditUser(null);
-      setFormData(initialState);
-      navigate("/");
-      setError(null);
-    } catch (error) {
-      console.error(error);
-      setError("Failed to edit user");
-    }
-  }, [API_URL, editUser, formData, initialState, navigate]);
 
+  //  save user details
+  const handleSaveEdit = useCallback(
+    async (event) => {
+      event.preventDefault(); // Prevent default form submission behavior
+
+      if (!formData.name || !formData.email) {
+        setError("Both fields are required");
+        return;
+      }
+      try {
+        const response = await axios.put(`${API_URL}/${editUser.id}`, formData);
+        setUsers((prev) =>
+          prev.map((user) =>
+            user.id === editUser.id ? { ...user, ...response.data } : user
+          )
+        );
+        setEditUser(null);
+        setFormData(initialState);
+        navigate("/");
+        setError(null);
+      } catch (error) {
+        console.error(error);
+        setError("Failed to edit user");
+      }
+    },
+    [API_URL, editUser, formData, initialState, navigate]
+  );
+
+  //  delete a user
   const handleDeleteUser = useCallback(
     async (id) => {
       try {
