@@ -93,6 +93,11 @@ export default function ContextAPI({ children }) {
         setError("Both fields are required");
         return;
       }
+      if (!formData.email) {
+      setError("Email fields are required");
+    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+      setError("Email is invalid");
+      }
       try {
         const response = await axios.put(`${API_URL}/${editUser.id}`, formData);
         setUsers((prev) =>
