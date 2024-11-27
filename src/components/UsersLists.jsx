@@ -15,7 +15,7 @@ const UsersLists = () => {
           users.map((user) => (
             <div
               key={user.id}
-              className="border-2 rounded-lg p-2 w-96 m-auto mb-1"
+              className="border-2 rounded-lg sm:p-2 sm:w-96 size-full m-auto mb-1"
             >
               <div className="p-2 m-1">
                 <p>
