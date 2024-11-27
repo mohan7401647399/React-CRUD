@@ -57,7 +57,7 @@ export default function ContextAPI({ children }) {
       return;
     }
     if (!formData.email) {
-      setError("Email fields are requied");
+      setError("Email fields are required");
     } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
       setError("Email is invalid");
     }
