@@ -98,6 +98,7 @@ export default function ContextAPI({ children }) {
       setError("Email fields are required");
     } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
       setError("Email is invalid");
+        return;
       }
       try {
         const response = await axios.patch(`${API_URL}/${editUser.id}`, formData);
