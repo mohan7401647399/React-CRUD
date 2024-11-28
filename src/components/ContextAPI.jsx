@@ -51,27 +51,31 @@ export default function ContextAPI({ children }) {
   }, [fetchUsers]);
 
   //  add a new user
+
   const handleAddUser = useCallback(async () => {
-    if (!formData.name && !formData.email) {
-      setError("Both fields are required");
-      return;
-    }
-    if (!formData.email) {
-      setError("Email fields are required");
-    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      setError("Email is invalid");
-      return;
-    }
-    try {
-      const response = await axios.post(API_URL, formData);
-      setUsers((prev) => [...prev, response.data]);
-      setFormData(initialState);
-      setError(null);
-    } catch (error) {
-      console.error(error);
-      setError("Failed to add user");
-    }
-  }, [API_URL, formData, initialState]);
+  // Check if name and email fields are empty
+  if (!formData.name || !formData.email) {
+    setError("Both name and email fields are required");
+    return; // Ensure the function exits early
+  }
+
+  // Validate email format
+  if (!/\S+@\S+\.\S+/.test(formData.email)) {
+    setError("Email is invalid");
+    return; // Ensure the function exits early
+  }
+
+  try {
+    const response = await axios.post(API_URL, formData);
+    setUsers((prev) => [...prev, response.data]);
+    setFormData(initialState); // Reset form fields
+    setError(null); // Clear previous error
+  } catch (error) {
+    console.error(error);
+    setError("Failed to add user");
+  }
+}, [API_URL, formData, initialState]);
+  
 
   //  edit existing user
   const handleEditUser = useCallback((user) => {
