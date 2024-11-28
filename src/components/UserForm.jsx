@@ -10,9 +10,19 @@ const UserForm = () => {
     editUser,
     handleSaveEdit,
   } = useContext(userContext);
+
+  // Function to handle form submission and show a toast
+  const handleSubmit = () => {
+    if (editUser) {
+      handleSaveEdit();
+    } else {
+      handleAddUser();
+    }
+  };
+
   return (
     <div className="text-center">
-      <h2 className="font-medium"> {editUser ? "Edit User" : "Add User"} </h2>
+      <h2 className="font-medium">{editUser ? "Edit User" : "Add User"}</h2>
       <div className="p-1 m-1">
         <label>Name: </label>
         <input
@@ -42,12 +52,11 @@ const UserForm = () => {
         />
       </div>
       {error && <p className="text-red-500">{error}</p>}
-      <button
-        className="bg-blue-500 p-2 rounded m-2"
-        onClick={editUser ? handleSaveEdit : handleAddUser}
-      >
-        {editUser ? "Save Changes" : "Add User"}
-      </button>
+      <div>
+        <button className="bg-blue-500 p-2 rounded m-2" onClick={handleSubmit}>
+          {editUser ? "Save Changes" : "Add User"}
+        </button>
+      </div>
     </div>
   );
 };

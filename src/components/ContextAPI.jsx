@@ -1,48 +1,40 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import axios from "axios";
-import React, {
-  createContext,
-  useEffect,
-  useState,
-  useCallback,
-  useMemo,
-} from "react";
+import React, { createContext, useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 export const userContext = createContext(null);
 
 export default function ContextAPI({ children }) {
   const API_URL = "https://jsonplaceholder.typicode.com/users";
 
-  const initialState = useMemo(
-    () => ({
+  const initialState = {
+    name: "",
+    email: "",
+    phone: "",
+    address: {
+      city: "",
+    },
+    company: {
       name: "",
-      email: "",
-      phone: "",
-      address: {
-        city: "",
-      },
-      company: {
-        name: "",
-      },
-    }),
-    []
-  );
+    },
+  };
 
   const [users, setUsers] = useState([]);
-  const [error, setError] = useState(null);
   const [formData, setFormData] = useState(initialState);
   const [editUser, setEditUser] = useState(null);
   const navigate = useNavigate();
 
-  //  fetch all users
+  // Fetch all users
   const fetchUsers = useCallback(async () => {
     try {
       const response = await axios.get(API_URL);
       setUsers(response.data);
-      setError(null);
     } catch (error) {
       console.error(error);
-      setError("Failed to fetch users");
+      toast.error("Failed to fetch users");
     }
   }, [API_URL]);
 
@@ -50,29 +42,35 @@ export default function ContextAPI({ children }) {
     fetchUsers();
   }, [fetchUsers]);
 
-  //  add a new user
+  // Form validation logic
+  const validateForm = () => {
+    if (!formData.name || !formData.email) {
+      toast.error("Both name and email are required");
+      return false;
+    }
+    if (!/\S+@\S+\.\S+/.test(formData.email)) {
+      toast.error("Invalid email format");
+      return false;
+    }
+    return true;
+  };
+
+  // Add new user
   const handleAddUser = useCallback(async () => {
-    if (!formData.name && !formData.email) {
-      setError("Both fields are required");
-      return;
-    }
-    if (!formData.email) {
-      setError("Email fields are required");
-    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      setError("Email is invalid");
-    }
+    if (!validateForm()) return;
+
     try {
       const response = await axios.post(API_URL, formData);
       setUsers((prev) => [...prev, response.data]);
       setFormData(initialState);
-      setError(null);
+      toast.success("User added successfully");
     } catch (error) {
       console.error(error);
-      setError("Failed to add user");
+      toast.error("Failed to add user");
     }
-  }, [API_URL, formData, initialState]);
+  }, [API_URL, formData]);
 
-  //  edit existing user
+  // Edit existing user
   const handleEditUser = useCallback((user) => {
     setEditUser(user);
     setFormData({
@@ -84,43 +82,41 @@ export default function ContextAPI({ children }) {
     });
   }, []);
 
-  //  save user details
-  const handleSaveEdit = useCallback(
-    async (event) => {
-      event.preventDefault(); // Prevent default form submission behavior
+  // Save user details
+  const handleSaveEdit = useCallback(async () => {
+    if (!validateForm()) return;
+    if (!editUser?.id) {
+      toast.error("Invalid user");
+      return;
+    }
 
-      if (!formData.name || !formData.email) {
-        setError("Both fields are required");
-        return;
-      }
-      try {
-        const response = await axios.put(`${API_URL}/${editUser.id}`, formData);
-        setUsers((prev) =>
-          prev.map((user) =>
-            user.id === editUser.id ? { ...user, ...response.data } : user
-          )
-        );
-        setEditUser(null);
-        setFormData(initialState);
-        navigate("/");
-        setError(null);
-      } catch (error) {
-        console.error(error);
-        setError("Failed to edit user");
-      }
-    },
-    [API_URL, editUser, formData, initialState, navigate]
-  );
+    try {
+      const response = await axios.patch(`${API_URL}/${editUser.id}`, formData);
+      setUsers((prev) =>
+        prev.map((user) =>
+          user.id === editUser.id ? { ...user, ...response.data } : user
+        )
+      );
+      setEditUser(null);
+      setFormData(initialState);
+      navigate("/");
+      toast.success("User details updated successfully");
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to edit user");
+    }
+  }, [API_URL, editUser, formData, initialState, navigate]);
 
-  //  delete a user
+  // Delete user
   const handleDeleteUser = useCallback(
     async (id) => {
       try {
         await axios.delete(`${API_URL}/${id}`);
         setUsers((prev) => prev.filter((user) => user.id !== id));
+        toast.success("User deleted successfully");
       } catch (error) {
-        console.log(error);
-        setError("Failed to delete a user");
+        console.error(error);
+        toast.error("Failed to delete user");
       }
     },
     [API_URL]
@@ -130,7 +126,6 @@ export default function ContextAPI({ children }) {
     <userContext.Provider
       value={{
         users,
-        error,
         formData,
         handleAddUser,
         setFormData,
