@@ -99,7 +99,7 @@ export default function ContextAPI({ children }) {
       setError("Email is invalid");
       }
       try {
-        const response = await axios.put(`${API_URL}/${editUser.id}`, formData);
+        const response = await axios.patch(`${API_URL}/${editUser.id}`, formData);
         setUsers((prev) =>
           prev.map((user) =>
             user.id === editUser.id ? { ...user, ...response.data } : user
