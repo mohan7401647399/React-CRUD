@@ -26,6 +26,8 @@ export default function ContextAPI({ children }) {
   const [formData, setFormData] = useState(initialState);
   const [editUser, setEditUser] = useState(null);
   const navigate = useNavigate();
+  const [currentPage, setCurrentPage] = useState(1);
+  const [postsPerPage, setPostsPerPage] = useState(3);
 
   // Fetch all users
   const fetchUsers = useCallback(async () => {
@@ -122,6 +124,14 @@ export default function ContextAPI({ children }) {
     [API_URL]
   );
 
+  //  get current posts
+  const lastPostIndex = currentPage * postsPerPage;
+  const firstPostIndex = lastPostIndex - postsPerPage;
+  const currentPosts = users.slice(firstPostIndex, lastPostIndex);
+  const totalPosts = users.length;
+  //   change page
+  const paginate = (pageNumber) => setCurrentPage(pageNumber);
+
   return (
     <userContext.Provider
       value={{
@@ -133,6 +143,13 @@ export default function ContextAPI({ children }) {
         handleDeleteUser,
         handleSaveEdit,
         editUser,
+        currentPage,
+        postsPerPage,
+        setCurrentPage,
+        paginate,
+        setPostsPerPage,
+        totalPosts,
+        currentPosts,
       }}
     >
       {children}

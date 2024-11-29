@@ -3,8 +3,13 @@ import { userContext } from "./ContextAPI";
 import { Link } from "react-router-dom";
 
 const UsersLists = () => {
-  const { users, error, handleEditUser, handleDeleteUser } =
-    useContext(userContext);
+  const {
+    // users,
+    error,
+    handleEditUser,
+    handleDeleteUser,
+    currentPosts: users,
+  } = useContext(userContext);
 
   return (
     <div className="p-2 m-1">
