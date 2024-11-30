@@ -1,3 +1,5 @@
+### `Deployed URL`
+  https://react-crud-app-mohan.netlify.app/
 
 ### `npm start`
 
